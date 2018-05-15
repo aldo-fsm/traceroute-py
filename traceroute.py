@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import socket
 import sys
 from random import randint
@@ -25,7 +28,12 @@ def formate(listaTuplas):
     return retorno
 
 def tracert(ip_addr, hops=30):
+    hops = int(hops)
     port =  33435
+
+    if hops > 255:
+        print("max hops não pode ser maior que 255")
+        return
 
     print('traceroute para {}, {} hops max, 3 pacotes de 60 bytes'.format(ip_addr, hops))
     # print('ttl address time')
@@ -52,9 +60,13 @@ def tracert(ip_addr, hops=30):
         ttl = i+1
         data = [send_receive(ttl) for _ in range(3)]
         data = sorted(data, key=lambda x:x[0])
-        printado = str(ttl) + " " + formate(data)
-        print(printado)
+        print('{} -> {}'.format(ttl, formate(data)))
+
+        if ip_addr in list(zip(*data))[0]:
+            break
 
 if __name__ == '__main__':
-    # print(sys.argv[1:])
-    tracert('8.8.8.8', 10)
+    args = sys.argv[1:]
+    ip_addr = args[0]
+    args = args[1:]
+    tracert(ip_addr,*args)
