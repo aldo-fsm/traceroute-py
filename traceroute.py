@@ -3,7 +3,26 @@ import sys
 from random import randint
 import time
 
-
+def formate(listaTuplas):
+    retorno = ""
+    addrPrev = ""
+    for tupla in listaTuplas:
+        addr, elapsed_time = tupla
+        if(addrPrev == ""):
+            if(addr =="*"):
+                retorno += "(*"  
+            else:
+                retorno += "(" + addr + " - " + elapsed_time
+        else:
+            if(addr =="*"):
+                retorno += ") (*" 
+            elif(addr == addrPrev):
+                retorno += ", " + elapsed_time
+            else:
+                retorno += ") (" + addr + " - " + elapsed_time        
+        addrPrev = addr
+    retorno += ") "
+    return retorno
 
 def tracert(ip_addr, hops=30):
     port =  33435
@@ -27,18 +46,14 @@ def tracert(ip_addr, hops=30):
             addr = '*'
         elapsed_time = round((time.time()-start_time)*1000, 3)
         
-        return addr, elapsed_time
+        return addr, str(elapsed_time) + "ms"
 
     for i in range(hops):
         ttl = i+1
         data = [send_receive(ttl) for _ in range(3)]
         data = sorted(data, key=lambda x:x[0])
-        print(data)
-        # print('{} -> {} \t| {}ms'.format(ttl, str.join(' ',data[0]), 'a'))
-        # addr1, elapsed_time1 = send_receive(ttl)
-        # addr2, elapsed_time2 = send_receive(ttl)
-        # addr3, elapsed_time3 = send_receive(ttl)
-        # print('{} -> {} \t| {}ms'.format(ttl, addr1, elapsed_time1))
+        printado = str(ttl) + " " + formate(data)
+        print(printado)
 
 if __name__ == '__main__':
     # print(sys.argv[1:])
