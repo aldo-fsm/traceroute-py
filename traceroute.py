@@ -3,7 +3,6 @@
 
 import socket
 import sys
-from random import randint
 import time
 
 def formate(listaTuplas):
@@ -27,7 +26,8 @@ def formate(listaTuplas):
     retorno += ") "
     return retorno
 
-def tracert(ip_addr, hops=30):
+def tracert(hostname, hops=30):
+    ip_addr = socket.gethostbyname(hostname)
     hops = int(hops)
     port =  33435
 
@@ -35,7 +35,8 @@ def tracert(ip_addr, hops=30):
         print("max hops não pode ser maior que 255")
         return
 
-    print('traceroute para {}, {} hops max, 3 pacotes de 60 bytes'.format(ip_addr, hops))
+    print('traceroute para {}, {} hops max, 3 pacotes de 60 bytes'
+        .format(ip_addr if ip_addr == hostname else '{} ({})'.format(hostname, ip_addr) , hops))
     # print('ttl address time')
 
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
