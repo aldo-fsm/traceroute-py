@@ -9,21 +9,23 @@ def formate(listaTuplas):
     retorno = ""
     addrPrev = ""
     for tupla in listaTuplas:
-        addr, elapsed_time = tupla
+        addr, hostname, elapsed_time = tupla
+        if hostname:
+            addr = '{} ({})'.format(hostname, addr)
         if(addrPrev == ""):
             if(addr =="*"):
-                retorno += "(*"  
+                retorno += "[*"  
             else:
-                retorno += "(" + addr + " - " + elapsed_time
+                retorno += "[" + addr + " - " + elapsed_time
         else:
             if(addr =="*"):
-                retorno += ") (*" 
+                retorno += "] [*" 
             elif(addr == addrPrev):
                 retorno += ", " + elapsed_time
             else:
-                retorno += ") (" + addr + " - " + elapsed_time        
+                retorno += "] [" + addr + " - " + elapsed_time        
         addrPrev = addr
-    retorno += ") "
+    retorno += "] "
     return retorno
 
 def tracert(hostname, hops=30):
@@ -37,7 +39,6 @@ def tracert(hostname, hops=30):
 
     print('traceroute para {}, {} hops max, 3 pacotes de 60 bytes'
         .format(ip_addr if ip_addr == hostname else '{} ({})'.format(hostname, ip_addr) , hops))
-    # print('ttl address time')
 
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     receiver = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
@@ -49,13 +50,18 @@ def tracert(hostname, hops=30):
         sender.setsockopt(socket.SOL_IP, socket.IP_TTL, ttl)
         sender.sendto(packet, (ip_addr, port))
         start_time = time.time()
+        hostname = ''
         try:
             _, (addr, _) = receiver.recvfrom(1024)
+            try:
+                hostname = socket.gethostbyaddr(addr)[0]
+            except:
+                pass
         except:
             addr = '*'
         elapsed_time = round((time.time()-start_time)*1000, 3)
         
-        return addr, str(elapsed_time) + "ms"
+        return addr, hostname, str(elapsed_time) + "ms"
 
     for i in range(hops):
         ttl = i+1
